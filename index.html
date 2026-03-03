@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#4361ee" id="meta-theme-color">
+<title>LinkVault Professional</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+  :root {
+    --primary: #0b57d0; --primary-dark: #0842a0; --primary-light: #d3e3fd; --primary-txt: #041e49;
+    --bg: #f8fafd; --surface: #ffffff; --surface2: #f0f4f9;
+    --text: #1f1f1f; --text2: #444746; --text3: #727775;
+    --border: #e0e2e7; --border2: #c4c7c5;
+    --danger: #b3261e; --danger-light: #f9dedc;
+    --success: #146c2e; --success-light: #c4eed0;
+    --warning: #b36b00;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    --r: 16px; --rs: 12px; --rt: 24px;
+    --nav-h: calc(80px + env(safe-area-inset-bottom));
+  }
+  
+  [data-theme="dark"] {
+    --primary: #a8c7fa; --primary-dark: #7cb0f9; --primary-light: #004a77; --primary-txt: #c2e7ff;
+    --bg: #0f1115; --surface: #1e1f22; --surface2: #282a2f;
+    --text: #e2e2e2; --text2: #c4c7c5; --text3: #8e918f;
+    --border: #333538; --border2: #444746;
+    --danger: #f2b8b5; --danger-light: #8c1d18;
+    --success: #81c995; --success-light: #0f5223;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
+  }
+
+  html,body {height:100%;width:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;transition:background 0.3s,color 0.3s}
+
+  .app {display:flex;flex-direction:column;height:100%;width:100%;max-width:480px;margin:0 auto;position:relative;overflow:hidden;background:var(--bg)}
+
+  /* Full Screen Overlays (Setup & Lock) */
+  .fs-overlay {position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity 0.3s}
+  .fs-overlay.hidden {opacity:0;pointer-events:none;display:none}
+  .fs-card {background:var(--surface);width:100%;max-width:380px;border-radius:var(--rt);padding:32px 24px;box-shadow:var(--shadow-lg);border:1px solid var(--border);text-align:center;animation:slideUp 0.4s ease}
+  .fs-logo {width:64px;height:64px;background:var(--primary-light);color:var(--primary);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+  .fs-logo svg {width:32px;height:32px}
+  .fs-title {font-size:22px;font-weight:700;margin-bottom:8px;letter-spacing:-0.5px}
+  .fs-desc {color:var(--text2);margin-bottom:24px;font-size:14px}
+  
+  .theme-opts {display:flex;gap:12px;margin-bottom:24px}
+  .theme-opt {flex:1;border:2px solid var(--border);border-radius:var(--r);padding:16px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all 0.2s}
+  .theme-opt.active {border-color:var(--primary);background:var(--primary-light);color:var(--primary-txt)}
+  .theme-opt svg {width:24px;height:24px}
+
+  /* Toolbar */
+  .toolbar {background:var(--bg);color:var(--text);padding:env(safe-area-inset-top) 16px 0;min-height:calc(60px + env(safe-area-inset-top));display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:10}
+  .toolbar h1 {font-size:20px;font-weight:700;flex:1;letter-spacing:-0.5px}
+  
+  .ib {width:44px;height:44px;border:none;background:none;color:inherit;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background 0.2s}
+  .ib:active {background:var(--border)}
+  .ib svg {width:22px;height:22px}
+  .ib.sm {width:36px;height:36px}
+  .ib.sm svg {width:18px;height:18px}
+
+  /* Search */
+  .search-wrap {padding:8px 16px 12px;flex-shrink:0}
+  .search-box {display:flex;align-items:center;background:var(--surface2);border-radius:28px;padding:0 16px;height:48px;gap:10px;transition:background 0.2s;border:1px solid transparent}
+  .search-box:focus-within {background:var(--surface);border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-light)}
+  .search-box svg {width:20px;height:20px;color:var(--text3);flex-shrink:0}
+  .search-box input {flex:1;border:none;background:none;outline:none;font-size:15px;color:var(--text);font-family:inherit}
+  .search-box input::placeholder {color:var(--text3)}
+
+  /* Chips */
+  .chips {display:flex;gap:8px;padding:4px 16px 12px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+  .chips::-webkit-scrollbar {display:none}
+  .chip {display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all 0.2s;flex-shrink:0;user-select:none}
+  .chip:active {transform:scale(0.95)}
+  .chip.on {background:var(--primary-light);color:var(--primary-txt);border-color:transparent}
+  .chip .cdot {width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  /* Content */
+  .content {flex:1;overflow-y:auto;padding:0 16px 100px;scroll-behavior:smooth}
+  .content::-webkit-scrollbar {width:4px}
+  .content::-webkit-scrollbar-thumb {background:var(--border2);border-radius:4px}
+
+  .sec-head {display:flex;align-items:center;justify-content:space-between;padding:12px 4px 8px}
+  .sec-title {font-size:15px;font-weight:700;color:var(--text)}
+  .badge {font-size:12px;font-weight:700;color:var(--primary-txt);background:var(--primary-light);padding:2px 10px;border-radius:12px}
+
+  /* Link Card */
+  .lcard {background:var(--surface);border-radius:var(--r);margin-bottom:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;transition:transform 0.15s,box-shadow 0.15s;animation:slideUp 0.3s ease}
+  .lcard:active {transform:scale(0.98);box-shadow:none}
+
+  .lcard-top {display:flex;align-items:center;padding:16px 16px 0;gap:12px}
+  .lcard-icon {width:44px;height:44px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:18px;color:#fff}
+  .lcard-info {flex:1;min-width:0}
+  .lcard-title {font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+  .lcard-url {font-size:13px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .lcard-note {font-size:12px;color:var(--text2);margin-top:4px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .lcard-bottom {display:flex;align-items:center;justify-content:space-between;padding:10px 16px;margin-top:12px;border-top:1px solid var(--border);background:var(--surface2)}
+  .lcard-meta {display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+  .ltag {display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;flex-shrink:0;letter-spacing:0.3px}
+  .ltag .tdot {width:6px;height:6px;border-radius:50%;display:inline-block}
+  
+  .lcard-acts {display:flex;gap:2px}
+  .lcard-acts .ib {color:var(--text2)}
+  .lcard-acts .ib:active {background:var(--border)}
+  .lcard-acts .ib.fav.on {color:var(--warning)}
+  .lcard-acts .ib.fav.on svg {fill:var(--warning)}
+
+  /* Empty State */
+  .empty {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
+  .empty-icon {width:80px;height:80px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);margin-bottom:20px}
+  .empty-icon svg {width:40px;height:40px}
+  .empty h3 {font-size:18px;font-weight:700;margin-bottom:8px}
+  .empty p {font-size:14px;color:var(--text2);max-width:260px;line-height:1.5}
+
+  /* Floating Action Button */
+  .fab {position:absolute;bottom:calc(96px + env(safe-area-inset-bottom));right:20px;width:56px;height:56px;border-radius:16px;background:var(--primary-light);color:var(--primary-txt);border:none;box-shadow:var(--shadow-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s, background 0.2s;z-index:20}
+  .fab:active {transform:scale(0.9)}
+  .fab svg {width:24px;height:24px}
+
+  /* Android M3 Bottom Nav */
+  .bnav {height:var(--nav-h);background:var(--surface2);padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:stretch;flex-shrink:0;z-index:10;border-top:1px solid var(--border)}
+  .bnav-item {flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:none;border:none;color:var(--text2);font-family:inherit;transition:color 0.2s}
+  .bnav-icon {width:64px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:background 0.2s, color 0.2s}
+  .bnav-item svg {width:24px;height:24px}
+  .bnav-item span {font-size:12px;font-weight:600;transition:font-weight 0.2s}
+  
+  .bnav-item.on {color:var(--text)}
+  .bnav-item.on .bnav-icon {background:var(--primary-light);color:var(--primary-txt)}
+  .bnav-item.on span {font-weight:700}
+
+  /* Modals/Bottom Sheets */
+  .overlay {position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);z-index:100;display:none;align-items:flex-end;justify-content:center;opacity:0;transition:opacity 0.2s}
+  .overlay.show {display:flex;opacity:1}
+  .sheet {width:100%;max-width:480px;background:var(--surface);border-radius:var(--rt) var(--rt) 0 0;max-height:90vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);padding-bottom:env(safe-area-inset-bottom)}
+  .overlay.show .sheet {transform:translateY(0)}
+  
+  .sheet-handle {width:32px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto}
+  .sheet-head {display:flex;align-items:center;justify-content:space-between;padding:8px 20px 16px;border-bottom:1px solid var(--border)}
+  .sheet-head h2 {font-size:18px;font-weight:700}
+  .sheet-body {padding:20px;overflow-y:auto;flex:1}
+
+  /* Form Elements */
+  .fg {margin-bottom:20px;text-align:left}
+  .fl {display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+  .fi {width:100%;height:48px;border:1px solid var(--border);border-radius:var(--rs);padding:0 16px;font-size:15px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:all 0.2s}
+  .fi:focus {border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light);background:var(--surface)}
+  select.fi {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23727775' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+
+  .btn {display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border:none;border-radius:100px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;padding:0 24px;width:100%}
+  .btn:active {transform:scale(0.97)}
+  .btn-p {background:var(--primary);color:#fff}
+  .btn-o {background:none;color:var(--text);border:1px solid var(--border2)}
+  .btn-d {background:var(--danger);color:#fff}
+
+  /* Pickers */
+  .cgrid {display:grid;grid-template-columns:repeat(7,1fr);gap:12px}
+  .csw {width:100%;aspect-ratio:1;border-radius:50%;cursor:pointer;position:relative;border:3px solid transparent}
+  .csw.on {border-color:var(--text);transform:scale(1.15)}
+  .igrid {display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .iopt {aspect-ratio:1;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+  .iopt.on {border-color:var(--primary);background:var(--primary-light);color:var(--primary-txt)}
+
+  /* Pages */
+  .page {display:none;flex-direction:column;flex:1;overflow:hidden}
+  .page.on {display:flex}
+
+  /* Settings UI */
+  .sgrp {margin-bottom:24px}
+  .sgrp-title {font-size:13px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;padding:0 8px}
+  .scard {background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+  .sitem {display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s}
+  .sitem:last-child {border-bottom:none}
+  .sitem:active {background:var(--surface2)}
+  .sitem-l {display:flex;align-items:center;gap:16px}
+  .sitem-icon {width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text2)}
+  .sitem-text h4 {font-size:15px;font-weight:600}
+  .sitem-text p {font-size:13px;color:var(--text3);margin-top:2px}
+  
+  /* Toggle Switch */
+  .toggle {width:52px;height:28px;border-radius:14px;background:var(--border2);position:relative;pointer-events:none;border:none;transition:background 0.3s}
+  .toggle.on {background:var(--primary)}
+  .toggle::after {content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);box-shadow:var(--shadow-sm)}
+  .toggle.on::after {left:27px}
+
+  /* Dialogs & Toasts */
+  .cdlg {position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.2s}
+  .cdlg.show {display:flex;opacity:1}
+  .cbox {background:var(--surface);border-radius:var(--rt);padding:24px;width:100%;max-width:320px;transform:scale(0.95);transition:transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);box-shadow:var(--shadow-lg)}
+  .cdlg.show .cbox {transform:scale(1)}
+  .cbox h3 {font-size:18px;font-weight:700;margin-bottom:8px}
+  .cbox p {font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+  .cbox-acts {display:flex;gap:12px;justify-content:flex-end}
+  .cbox-acts .btn {width:auto;height:40px;font-size:14px}
+
+  .toast {position:fixed;bottom:calc(var(--nav-h) + 20px);left:50%;transform:translate(-50%, 20px);background:var(--text);color:var(--bg);padding:12px 24px;border-radius:100px;font-size:14px;font-weight:500;z-index:300;opacity:0;pointer-events:none;transition:all 0.3s;box-shadow:var(--shadow-lg);white-space:nowrap;display:flex;align-items:center;gap:8px}
+  .toast.show {transform:translate(-50%, 0);opacity:1}
+
+  @keyframes slideUp {from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- Setup Wizard -->
+<div class="fs-overlay hidden" id="setupOverlay">
+  <div class="fs-card">
+    <div class="fs-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+    </div>
+    <h2 class="fs-title">Welcome to LinkVault</h2>
+    <p class="fs-desc">Your personal space to securely store, organize, and manage your important links.</p>
+    
+    <div class="fg">
+      <label class="fl">What should we call you?</label>
+      <input class="fi" id="setupName" placeholder="Enter your name" autocomplete="off">
+    </div>
+    
+    <div class="fg">
+      <label class="fl">App Password (Optional)</label>
+      <input class="fi" type="password" id="setupPass" placeholder="Leave blank for no password">
+    </div>
+
+    <div class="fg">
+      <label class="fl">Theme Preference</label>
+      <div class="theme-opts">
+        <div class="theme-opt active" id="optLight" onclick="setSetupTheme('light')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          Light
+        </div>
+        <div class="theme-opt" id="optDark" onclick="setSetupTheme('dark')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          Dark
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn btn-p" onclick="finishSetup()">Get Started</button>
+  </div>
+</div>
+
+<!-- Lock Screen -->
+<div class="fs-overlay hidden" id="lockOverlay">
+  <div class="fs-card">
+    <div class="fs-logo" style="background:var(--surface2);color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <h2 class="fs-title" id="lockGreeting">Welcome Back</h2>
+    <p class="fs-desc">Please enter your password to unlock LinkVault.</p>
+    
+    <div class="fg">
+      <input class="fi" type="password" id="unlockPass" placeholder="Enter password" autocomplete="off" onkeyup="if(event.key==='Enter') unlockApp()">
+    </div>
+    
+    <button class="btn btn-p" onclick="unlockApp()" style="margin-bottom:16px">Unlock</button>
+    <button class="btn btn-o" onclick="resetAppDialog()" style="border:none;color:var(--danger)">Forgot Password? Reset App</button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="app" id="appContent">
+  
+  <!-- LINKS PAGE -->
+  <div class="page on" id="pg-links">
+    <div class="toolbar">
+      <h1 id="topGreeting">LinkVault</h1>
+      <button class="ib" onclick="openSort()" title="Sort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h12M3 18h6"/></svg></button>
+    </div>
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search your links..." id="sinput" oninput="onSearch()">
+        <button class="ib sm" id="sclear" onclick="clearSearch()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="content" id="linksList"></div>
+    <button class="fab" onclick="openLinkSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+
+  <!-- CATEGORIES PAGE -->
+  <div class="page" id="pg-cats">
+    <div class="toolbar">
+      <h1>Categories</h1>
+      <button class="ib" onclick="openCatSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="content" style="padding-top:16px" id="catsList"></div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="pg-set">
+    <div class="toolbar"><h1>Settings</h1></div>
+    <div class="content" style="padding-top:16px" id="setContent"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bnav">
+    <button class="bnav-item on" id="bn-links" onclick="go('links')">
+      <div class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
+      <span>Links</span>
+    </button>
+    <button class="bnav-item" id="bn-cats" onclick="go('cats')">
+      <div class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></div>
+      <span>Categories</span>
+    </button>
+    <button class="bnav-item" id="bn-set" onclick="go('set')">
+      <div class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+      <span>Settings</span>
+    </button>
+  </div>
+</div>
+
+<!-- LINK SHEET -->
+<div class="overlay" id="ovLink"><div class="sheet"><div class="sheet-handle"></div>
+  <div class="sheet-head"><h2 id="lsTitle">Add Link</h2><button class="ib sm" onclick="clOv('ovLink')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body">
+    <div class="fg"><label class="fl">Title</label><input class="fi" id="lnTitle" placeholder="e.g. My Website"></div>
+    <div class="fg"><label class="fl">URL</label><input class="fi" type="url" id="lnUrl" placeholder="https://example.com"></div>
+    <div class="fg"><label class="fl">Category</label><select class="fi" id="lnCat"></select></div>
+    <div class="fg"><label class="fl">Notes (optional)</label><input class="fi" id="lnNote" placeholder="Add a description..."></div>
+    <input type="hidden" id="lnEdit" value="">
+    <button class="btn btn-p" onclick="saveLn()"><span id="lsBtn">Save Link</span></button>
+  </div>
+</div></div>
+
+<!-- CATEGORY SHEET -->
+<div class="overlay" id="ovCat"><div class="sheet"><div class="sheet-handle"></div>
+  <div class="sheet-head"><h2 id="csTitle">Add Category</h2><button class="ib sm" onclick="clOv('ovCat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body">
+    <div class="fg"><label class="fl">Category Name</label><input class="fi" id="cnName" placeholder="e.g. Work, Design, Tools"></div>
+    <div class="fg"><label class="fl">Color</label><div class="cgrid" id="cGrid"></div></div>
+    <div class="fg"><label class="fl">Icon</label><div class="igrid" id="iGrid"></div></div>
+    <input type="hidden" id="cnEdit" value="">
+    <button class="btn btn-p" onclick="saveCat()"><span id="csBtn">Save Category</span></button>
+  </div>
+</div></div>
+
+<!-- SORT SHEET -->
+<div class="overlay" id="ovSort"><div class="sheet" style="max-height:60vh"><div class="sheet-handle"></div>
+  <div class="sheet-head"><h2>Sort By</h2><button class="ib sm" onclick="clOv('ovSort')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body" style="padding-top:10px" id="sortBody"></div>
+</div></div>
+
+<!-- CONFIRM -->
+<div class="cdlg" id="cdlg">
+  <div class="cbox">
+    <h3 id="cTitle">Confirm</h3>
+    <p id="cMsg">Are you sure?</p>
+    <div class="cbox-acts">
+      <button class="btn btn-o" onclick="clConf()">Cancel</button>
+      <button class="btn btn-d" id="cBtn" onclick="doConf()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:16px;height:16px"><path d="M20 6L9 17l-5-5"/></svg><span id="toast-text">Message</span></div>
+
+<script>
+// DATA & CONSTANTS
+const COLORS=['#0b57d0','#7c3aed','#d81b60','#b3261e','#b36b00','#146c2e','#00838f','#1e40af','#0f5223','#8b5cf6','#c026d3','#475569','#0f172a','#4f46e5'];
+
+const ICONS=[
+  {id:'globe',s:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/>'},
+  {id:'code',s:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'},
+  {id:'book',s:'<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>'},
+  {id:'briefcase',s:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>'},
+  {id:'film',s:'<rect x="2" y="2" width="20" height="20" rx="2.18"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>'},
+  {id:'heart',s:'<path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>'},
+  {id:'star',s:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'},
+  {id:'cart',s:'<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>'},
+  {id:'camera',s:'<path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>'},
+  {id:'zap',s:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'},
+  {id:'folder',s:'<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>'},
+  {id:'cloud',s:'<path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/>'},
+  {id:'lock',s:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>'},
+  {id:'game',s:'<rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="18" y1="13" x2="18.01" y2="13"/>'},
+  {id:'mail',s:'<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/>'},
+  {id:'image',s:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'},
+  {id:'bookmark',s:'<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>'},
+  {id:'shield',s:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'}
+];
+
+const DEFAULT_CATS=[
+  {id:'c1',name:'Development',color:'#0b57d0',icon:'code'},
+  {id:'c2',name:'News & Blogs',color:'#b36b00',icon:'globe'},
+  {id:'c3',name:'Inspiration',color:'#d81b60',icon:'heart'},
+  {id:'c4',name:'Tools',color:'#146c2e',icon:'briefcase'}
+];
+
+// STATE
+let lns=[], cats=[], userPrefs=null;
+let activeCat='all', sortMode='newest', selColor=COLORS[0], selIcon=ICONS[0].id, confCb=null;
+
+// INIT
+function init(){
+  const storedPrefs = localStorage.getItem('lv_prefs');
+  const storedCats = localStorage.getItem('lv_cats');
+  const storedLns = localStorage.getItem('lv_lns');
+  
+  if(!storedPrefs) {
+    // Fresh start
+    cats = [...DEFAULT_CATS];
+    lns = [];
+    document.getElementById('setupOverlay').classList.remove('hidden');
+  } else {
+    // Returning user
+    userPrefs = JSON.parse(storedPrefs);
+    cats = storedCats ? JSON.parse(storedCats) : [...DEFAULT_CATS];
+    lns = storedLns ? JSON.parse(storedLns) : [];
+    
+    applyTheme(userPrefs.theme);
+    document.getElementById('topGreeting').textContent = `Hi, ${userPrefs.name}`;
+    
+    if(userPrefs.password) {
+      document.getElementById('lockGreeting').textContent = `Welcome back, ${userPrefs.name}`;
+      document.getElementById('lockOverlay').classList.remove('hidden');
+      setTimeout(()=>document.getElementById('unlockPass').focus(), 100);
+    } else {
+      startApp();
+    }
+  }
+}
+
+// SETUP & AUTH
+let tempTheme = 'light';
+function setSetupTheme(t) {
+  tempTheme = t;
+  document.querySelectorAll('.theme-opt').forEach(el=>el.classList.remove('active'));
+  document.getElementById(t==='light'?'optLight':'optDark').classList.add('active');
+  applyTheme(t);
+}
+
+function finishSetup() {
+  const name = document.getElementById('setupName').value.trim();
+  const pass = document.getElementById('setupPass').value.trim();
+  if(!name) { showToast('Please enter your name'); return; }
+  
+  userPrefs = { name, password: pass || null, theme: tempTheme };
+  localStorage.setItem('lv_prefs', JSON.stringify(userPrefs));
+  saveData();
+  
+  document.getElementById('setupOverlay').classList.add('hidden');
+  document.getElementById('topGreeting').textContent = `Hi, ${name}`;
+  startApp();
+}
+
+function unlockApp() {
+  const pass = document.getElementById('unlockPass').value;
+  if(pass === userPrefs.password) {
+    document.getElementById('lockOverlay').classList.add('hidden');
+    document.getElementById('unlockPass').value = '';
+    startApp();
+  } else {
+    showToast('Incorrect password');
+  }
+}
+
+function resetAppDialog() {
+  openConf('Reset Application?', 'This will permanently delete all your links, categories, and settings.', () => {
+    localStorage.clear();
+    location.reload();
+  });
+}
+
+function startApp() {
+  rLinks();
+}
+
+// DATA MANAGEMENT
+function saveData() {
+  localStorage.setItem('lv_cats', JSON.stringify(cats));
+  localStorage.setItem('lv_lns', JSON.stringify(lns));
+}
+
+// UTILS
+function uid(){return 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)}
+function gc(id){return cats.find(c=>c.id===id)}
+function dom(u){try{return new URL(u).hostname.replace('www.','')}catch{return u}}
+function fdate(t){return new Date(t).toLocaleDateString([],{month:'short',day:'numeric'})}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function isvg(id){const i=ICONS.find(x=>x.id===id);return i?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i.s}</svg>`:''}
+
+function showToast(m){
+  const e = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = m;
+  e.classList.add('show');
+  setTimeout(()=>e.classList.remove('show'), 2500);
+}
+
+function clOv(id){document.getElementById(id).classList.remove('show')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{
+  if(e.target===o) o.classList.remove('show');
+}));
+
+// NAV
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  document.querySelectorAll('.bnav-item').forEach(x=>x.classList.remove('on'));
+  document.getElementById('bn-'+p).classList.add('on');
+  if(p==='links') rLinks();
+  if(p==='cats') rCats();
+  if(p==='set') rSet();
+}
+
+// CHIPS
+function rChips(){
+  const el=document.getElementById('chips');
+  let h=`<div class="chip ${activeCat==='all'?'on':''}" onclick="fCat('all')">All</div>`;
+  h+=`<div class="chip ${activeCat==='fav'?'on':''}" onclick="fCat('fav')">Favorites</div>`;
+  cats.forEach(c=>{
+    h+=`<div class="chip ${activeCat===c.id?'on':''}" onclick="fCat('${c.id}')"><span class="cdot" style="background:${activeCat===c.id?'var(--primary-txt)':c.color}"></span>${esc(c.name)}</div>`;
+  });
+  el.innerHTML=h;
+}
+
+function fCat(c){activeCat=c;rChips();rList()}
+
+// LINKS
+function rLinks(){rChips();rList()}
+
+function rList(){
+  const el=document.getElementById('linksList');
+  const q=document.getElementById('sinput').value.toLowerCase();
+  document.getElementById('sclear').style.display = q.length>0 ? 'flex' : 'none';
+
+  let fl=lns.filter(l=>{
+    const ms=!q||l.title.toLowerCase().includes(q)||l.url.toLowerCase().includes(q)||(l.note||'').toLowerCase().includes(q);
+    const mc=activeCat==='all'||(activeCat==='fav'&&l.fav)||l.cat===activeCat;
+    return ms&&mc;
+  });
+
+  fl.sort((a,b)=>{
+    if(sortMode==='newest')return b.date-a.date;
+    if(sortMode==='oldest')return a.date-b.date;
+    if(sortMode==='az')return a.title.localeCompare(b.title);
+    if(sortMode==='za')return b.title.localeCompare(a.title);
+    return 0;
+  });
+
+  if(!fl.length){
+    el.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
+      <h3>Nothing here yet</h3>
+      <p>Tap the + button to save a link in this view.</p>
+    </div>`;
+    return;
+  }
+
+  const catLabel=activeCat==='all'?'All Links':activeCat==='fav'?'Favorites':(gc(activeCat)?.name||'Links');
+  let h=`<div class="sec-head"><span class="sec-title">${catLabel}</span><span class="badge">${fl.length}</span></div>`;
+
+  fl.forEach(l=>{
+    const c=gc(l.cat);
+    const col=c?c.color:'var(--text3)';
+    const init=l.title.charAt(0).toUpperCase();
+    h+=`<div class="lcard">
+      <div class="lcard-top">
+        <div class="lcard-icon" style="background:${col}">${init}</div>
+        <div class="lcard-info">
+          <div class="lcard-title">${esc(l.title)}</div>
+          <div class="lcard-url">${esc(dom(l.url))}</div>
+          ${l.note?`<div class="lcard-note">${esc(l.note)}</div>`:''}
+        </div>
+      </div>
+      <div class="lcard-bottom">
+        <div class="lcard-meta">
+          ${c?`<span class="ltag" style="background:${col}20;color:${col}"><span class="tdot" style="background:${col}"></span>${esc(c.name)}</span>`:''}
+          <span style="font-size:11px;color:var(--text3)">${fdate(l.date)}</span>
+        </div>
+        <div class="lcard-acts">
+          <button class="ib sm fav ${l.fav?'on':''}" onclick="togFav('${l.id}')" title="Favorite"><svg viewBox="0 0 24 24" fill="${l.fav?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+          <button class="ib sm" onclick="copyUrl('${l.id}')" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          <button class="ib sm" onclick="editLn('${l.id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+function onSearch(){rList()}
+function clearSearch(){document.getElementById('sinput').value='';rList();document.getElementById('sinput').focus()}
+
+function togFav(id){const l=lns.find(x=>x.id===id);if(l){l.fav=!l.fav;saveData();rList();rChips()}}
+
+function copyUrl(id){
+  const l=lns.find(x=>x.id===id);
+  if(!l)return;
+  if(navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(l.url).then(()=>showToast('Link copied!')).catch(()=>showToast('Failed to copy'));
+  } else {
+    // fallback
+    const ta=document.createElement('textarea'); ta.value=l.url;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Link copied!');
+  }
+}
+
+// LINK SHEET
+function openLinkSheet(eid){
+  const sel=document.getElementById('lnCat');
+  sel.innerHTML='<option value="">No Category</option>' + cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  
+  if(eid){
+    const l=lns.find(x=>x.id===eid);
+    if(!l)return;
+    document.getElementById('lsTitle').textContent='Edit Link';
+    document.getElementById('lsBtn').textContent='Save Changes';
+    document.getElementById('lnTitle').value=l.title;
+    document.getElementById('lnUrl').value=l.url;
+    document.getElementById('lnCat').value=l.cat||'';
+    document.getElementById('lnNote').value=l.note||'';
+    document.getElementById('lnEdit').value=eid;
+  }else{
+    document.getElementById('lsTitle').textContent='Add Link';
+    document.getElementById('lsBtn').textContent='Save Link';
+    document.getElementById('lnTitle').value='';
+    document.getElementById('lnUrl').value='';
+    document.getElementById('lnCat').value=activeCat!=='all'&&activeCat!=='fav'?activeCat:'';
+    document.getElementById('lnNote').value='';
+    document.getElementById('lnEdit').value='';
+  }
+  document.getElementById('ovLink').classList.add('show');
+  setTimeout(()=>document.getElementById(eid?'lnTitle':'lnUrl').focus(),300);
+}
+
+function saveLn(){
+  const t=document.getElementById('lnTitle').value.trim();
+  let u=document.getElementById('lnUrl').value.trim();
+  const c=document.getElementById('lnCat').value;
+  const n=document.getElementById('lnNote').value.trim();
+  const eid=document.getElementById('lnEdit').value;
+  
+  if(!t){showToast('Title is required');return}
+  if(!u){showToast('URL is required');return}
+  if(!u.match(/^https?:\/\//)) u='https://'+u;
+  
+  if(eid){
+    const l=lns.find(x=>x.id===eid);
+    if(l){l.title=t;l.url=u;l.cat=c;l.note=n; showToast('Link updated')}
+  }else{
+    lns.push({id:uid(),title:t,url:u,cat:c,note:n,date:Date.now(),fav:false});
+    showToast('Link added');
+  }
+  saveData();
+  clOv('ovLink');
+  rLinks();
+}
+
+function editLn(id){openLinkSheet(id)}
+
+// CATEGORIES
+function rCats(){
+  const el=document.getElementById('catsList');
+  if(!cats.length){
+    el.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></div>
+      <h3>No Categories</h3>
+      <p>Create categories to keep your links organized.</p>
+    </div>`;
+    return;
+  }
+  let h=`<div class="sec-head"><span class="sec-title">Manage Categories</span><span class="badge">${cats.length}</span></div>`;
+  cats.forEach(c=>{
+    const cnt=lns.filter(l=>l.cat===c.id).length;
+    h+=`<div class="lcard" style="margin-bottom:8px">
+      <div class="lcard-top" style="padding-bottom:16px">
+        <div class="lcard-icon" style="background:${c.color};width:40px;height:40px">${isvg(c.icon)}</div>
+        <div class="lcard-info">
+          <div class="lcard-title">${esc(c.name)}</div>
+          <div class="lcard-url">${cnt} link${cnt!==1?'s':''}</div>
+        </div>
+        <div class="lcard-acts">
+          <button class="ib sm" onclick="editCat('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ib sm" style="color:var(--danger)" onclick="delCat('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+function openCatSheet(eid){
+  rCGrid(); rIGrid();
+  if(eid){
+    const c=gc(eid);
+    if(!c)return;
+    document.getElementById('csTitle').textContent='Edit Category';
+    document.getElementById('cnName').value=c.name;
+    selColor=c.color; selIcon=c.icon;
+    document.getElementById('cnEdit').value=eid;
+    rCGrid(); rIGrid();
+  }else{
+    document.getElementById('csTitle').textContent='New Category';
+    document.getElementById('cnName').value='';
+    selColor=COLORS[0]; selIcon=ICONS[0].id;
+    document.getElementById('cnEdit').value='';
+    rCGrid(); rIGrid();
+  }
+  document.getElementById('ovCat').classList.add('show');
+  setTimeout(()=>document.getElementById('cnName').focus(),300);
+}
+
+function rCGrid(){
+  document.getElementById('cGrid').innerHTML=COLORS.map(c=>
+    `<div class="csw ${selColor===c?'on':''}" style="background:${c}" onclick="selColor='${c}';rCGrid()"></div>`
+  ).join('');
+}
+function rIGrid(){
+  document.getElementById('iGrid').innerHTML=ICONS.map(i=>
+    `<div class="iopt ${selIcon===i.id?'on':''}" onclick="selIcon='${i.id}';rIGrid()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px">${i.s}</svg></div>`
+  ).join('');
+}
+
+function saveCat(){
+  const n=document.getElementById('cnName').value.trim();
+  const eid=document.getElementById('cnEdit').value;
+  if(!n){showToast('Name required');return}
+  if(eid){
+    const c=gc(eid); if(c){c.name=n;c.color=selColor;c.icon=selIcon; showToast('Category updated')}
+  }else{
+    cats.push({id:uid(),name:n,color:selColor,icon:selIcon}); showToast('Category created');
+  }
+  saveData();
+  clOv('ovCat'); rCats(); rLinks();
+}
+
+function editCat(id){openCatSheet(id)}
+function delCat(id){
+  const c=gc(id);
+  openConf('Delete Category', `Delete "${c?.name}"? Any links inside will become uncategorized.`, ()=>{
+    cats=cats.filter(x=>x.id!==id);
+    lns.forEach(l=>{if(l.cat===id)l.cat=''});
+    saveData();
+    showToast('Deleted category');
+    rCats(); rLinks();
+  });
+}
+
+// SORT
+function openSort(){
+  const sorts=[
+    {m:'newest',l:'Newest First',ic:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'},
+    {m:'oldest',l:'Oldest First',ic:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 8 14"/>'},
+    {m:'az',l:'A to Z',ic:'<path d="M3 6h18M3 12h12M3 18h6"/>'},
+    {m:'za',l:'Z to A',ic:'<path d="M3 18h18M3 12h12M3 6h6"/>'}
+  ];
+  let h='<div class="scard" style="margin-bottom:12px">';
+  sorts.forEach(s=>{
+    h+=`<div class="sitem" onclick="setSort('${s.m}')">
+      <div class="sitem-l">
+        <div class="sitem-icon" style="background:var(--surface2);color:var(--text)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px">${s.ic}</svg></div>
+        <div class="sitem-text"><h4>${s.l}</h4></div>
+      </div>
+      ${sortMode===s.m?'<svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" style="width:22px;height:22px"><polyline points="20 6 9 17 4 12"/></svg>':''}
+    </div>`;
+  });
+  h+='</div>';
+  document.getElementById('sortBody').innerHTML=h;
+  document.getElementById('ovSort').classList.add('show');
+}
+
+function setSort(m){
+  sortMode=m; rList();
+  setTimeout(()=>clOv('ovSort'), 200);
+}
+
+// SETTINGS
+function rSet(){
+  const el=document.getElementById('setContent');
+  const dMode = userPrefs && userPrefs.theme === 'dark';
+  
+  el.innerHTML=`
+    <div class="sgrp">
+      <div class="sgrp-title">Account & Display</div>
+      <div class="scard">
+        <div class="sitem" onclick="togDark()">
+          <div class="sitem-l">
+            <div class="sitem-icon" style="background:var(--primary-light);color:var(--primary-txt)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
+            <div class="sitem-text"><h4>Dark Theme</h4><p>${dMode?'Enabled':'Disabled'}</p></div>
+          </div>
+          <button class="toggle ${dMode?'on':''}"></button>
+        </div>
+        <div class="sitem" onclick="changePass()">
+          <div class="sitem-l">
+            <div class="sitem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+            <div class="sitem-text"><h4>App Password</h4><p>${userPrefs?.password?'Protected':'No password set'}</p></div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--border2)" stroke-width="2" style="width:18px;height:18px"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+    
+    <div class="sgrp">
+      <div class="sgrp-title">Data Management</div>
+      <div class="scard">
+        <div class="sitem" onclick="clearLinks()">
+          <div class="sitem-l">
+            <div class="sitem-icon" style="background:var(--danger-light);color:var(--danger)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
+            <div class="sitem-text"><h4>Clear All Links</h4><p>Delete all ${lns.length} saved links</p></div>
+          </div>
+        </div>
+        <div class="sitem" onclick="resetAppDialog()">
+          <div class="sitem-l">
+            <div class="sitem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
+            <div class="sitem-text"><h4>Reset App</h4><p>Wipes all data and preferences</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align:center;padding:10px 0;color:var(--text3);font-size:12px;font-weight:500;">
+      LinkVault Professional 3.0
+    </div>
+  `;
+}
+
+function togDark(){
+  if(!userPrefs) return;
+  const isDark = userPrefs.theme === 'dark';
+  userPrefs.theme = isDark ? 'light' : 'dark';
+  localStorage.setItem('lv_prefs', JSON.stringify(userPrefs));
+  applyTheme(userPrefs.theme);
+  rSet();
+}
+
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const color = getComputedStyle(document.documentElement).getPropertyValue(t==='dark'?'--surface':'--bg').trim();
+  document.getElementById('meta-theme-color').setAttribute('content', color);
+}
+
+function changePass(){
+  const newPass = prompt("Enter new password (leave blank to remove):");
+  if(newPass !== null) {
+    userPrefs.password = newPass.trim() || null;
+    localStorage.setItem('lv_prefs', JSON.stringify(userPrefs));
+    showToast(userPrefs.password ? 'Password updated' : 'Password removed');
+    rSet();
+  }
+}
+
+function clearLinks(){
+  if(lns.length === 0) { showToast('No links to clear'); return; }
+  openConf('Clear All Links', 'Are you sure you want to permanently delete all your links?', ()=>{
+    lns=[]; saveData(); showToast('All links cleared'); rSet(); rLinks();
+  });
+}
+
+// CONFIRM DIALOG
+function openConf(t,m,cb){
+  document.getElementById('cTitle').textContent=t;
+  document.getElementById('cMsg').textContent=m;
+  confCb=cb;
+  document.getElementById('cdlg').classList.add('show');
+}
+function clConf(){document.getElementById('cdlg').classList.remove('show'); confCb=null}
+function doConf(){if(confCb)confCb(); clConf()}
+
+// LAUNCH
+init();
+</script>
+</body>
+</html>
